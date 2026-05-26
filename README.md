@@ -1,96 +1,170 @@
 # DataCops vs Addingwell
 
-In June 2024, Didomi acquired Addingwell. If you onboarded Addingwell before that, you bought a scrappy French server-side tagging host run by people who answered support tickets fast. If you are evaluating it now, **you are buying a line item inside a consent-management enterprise. Same logo. Different company.**
+Let's be real. The Addingwell you remember is gone.
 
-I have run [server-side GTM](/alternative/server-side-gtm-alternative) setups for DTC brands and agencies for years, and I watch what happens to good small tools after acquisition. They drift upmarket. The free-ish tier gets quietly squeezed, the sales calls start mentioning "consent orchestration," and the SMB who just wanted a clean sGTM container gets handed an enterprise quote.
+April 22, 2025: Didomi acquired Addingwell with a EUR 72M round backed by Marlin Equity Partners. Three months later, July 8 2025, Didomi swallowed Sourcepoint too. The rebrand to "Addingwell by Didomi" was the soft signal. The two-year unification roadmap into a single enterprise platform is the actual story.
 
-This is not an Addingwell hit piece. **Addingwell is genuinely good infrastructure.** This is a post about who Addingwell is now built for, and what you should look at if that is not you. Compare with our [Addingwell alternative breakdown](/alternative/addingwell-alternative).
+If you signed up to Addingwell in 2023 because it was the SMB-friendly French sGTM that didn't make you stand up Cloud Run, you are no longer the customer Didomi is optimizing for. The EUR 90/mo entry tier (Sandbox capped at 100k requests, Pay-as-You-Go starts at 2M requests) tells the truth. Stape sits at roughly EUR 50 for the equivalent volume. TAGGRS comes in at EUR 25. Addingwell is now the premium tier in a category that's commoditizing fast, and the Didomi CMP licensing on top runs USD 2,000 to 15,000 a year on top of that.
 
-[DataCops](/conversion-api) is the architectural answer here, and I will be blunt about why: **server-side tagging alone never fixed the actual problem.** It moves tags off the page. It does not filter what flows through them. More on that below.
+Meanwhile, the ground shifted under everyone. Google Consent Mode v2 enforcement went live July 21 2025 with active disablement of remarketing and conversion tracking for non-compliant EEA accounts. Meta's CAPI is now table stakes, with conversion-lift studies showing 13 to 19% attributed-conversion uplift on top of the Pixel. About one in six PPC clicks is fraudulent. sGTM hosting alone, in 2026, is half the answer.
+
+So what's the honest read on Addingwell vs DataCops? They're not the same shape. Addingwell hosts your Server-side GTM container. DataCops is a first-party trust-infrastructure layer that runs on a CNAME on your own subdomain and bundles consent, CAPI, fraud filtering and first-party analytics into one product. This post unpacks where each fits, where they overlap, and which one you should pick depending on your actual stack.
+
+Spoiler: it's mostly not the same problem.
+
+---
 
 ## Quick stuff people keep asking
 
-**What is Addingwell?** A managed server-side tagging platform. It hosts your Google Tag Manager server container on its own infrastructure so your tracking runs server-side instead of in the browser. Founded in France, acquired by Didomi in 2024.
+**What happened to Addingwell?** Didomi acquired Addingwell in April 2025 for EUR 72M with backing from Marlin Equity Partners. Three months later Didomi also acquired Sourcepoint. Addingwell is now "Addingwell by Didomi" and is being folded into a single enterprise platform over a two-year roadmap.
 
-**Is Addingwell better than Stape?** Different bias. Addingwell leans cleaner EU data residency and, post-Didomi, tighter consent integration. [Stape](/alternative/stape-alternative) has the bigger ecosystem, more power-user features, and a larger community. For a pure sGTM host, both are competent. Stape usually wins on flexibility, Addingwell on a polished EU compliance story.
+**Is Addingwell still good for SMBs?** Less so. Entry pricing is EUR 90/mo (vs Stape EUR 50, TAGGRS EUR 25). The Sandbox is free but capped at 100k requests. The persona has shifted toward enterprise customers who want consent + sGTM + analytics under one Didomi roof.
 
-**Who owns Addingwell?** Didomi, the consent-management platform. The acquisition closed in 2024. That ownership is the single most important fact in any 2026 evaluation, because it explains the [pricing](/pricing) and the upmarket drift.
+**Is Addingwell SOC 2 or ISO 27001 certified?** No. Per public agency comparisons in 2026, Addingwell does not hold SOC 2, ISO 27001, HIPAA or DORA. Stape holds all four. Addingwell is GDPR-aligned and EU-hosted.
 
-**How much does Addingwell cost?** Public plans have historically started low, but the real cost in 2026 shows up when you scale event volume or get steered toward the bundled Didomi consent suite. The headline number is not the number you pay.
+**What's the cheapest Addingwell alternative?** Depends what you actually need. Pure sGTM hosting: Stape, TAGGRS, Tracklution. Bundled trust stack (CAPI + consent + bot filtering + analytics): DataCops Free or Growth at $7.99/mo.
 
-**Is Addingwell GDPR compliant?** Yes. EU-hosted server-side tagging with a consent-aware parent company. Compliance posture is one of its genuine strengths. Compliance is not the same as measurement accuracy, though, and that gap is the whole point of this article.
+**Does DataCops require Server-side GTM?** No. DataCops runs on a CNAME on your subdomain. One script, one DNS record, no GTM container, no Cloud Run, no DevOps.
 
-**What is the alternative to Addingwell?** Depends what you actually need. For a bare sGTM host: Stape or TAGGRS. For EU agency work: [Tracklution](/alternative/tracklution-alternative). For first-party tracking plus consent plus [bot filtering](/fraud-traffic-validation) in one pipeline at SMB pricing: DataCops.
+---
 
-**Does Addingwell require sGTM?** Effectively yes. Addingwell's core product is hosting a server-side Google Tag Manager container. If you do not want to run sGTM, Addingwell is not the shape of tool you are looking for.
+## How to think about this comparison
 
-## The gap server-side tagging quietly leaves open
+Most "Addingwell alternative" posts treat the question like swapping one sGTM host for another. That misses what changed in 2026.
 
-Here is the lie the whole server-side category is built on: that moving your tags to a server fixes your data.
+In 2026 the buyer's actual problem is a stack problem. Consent Mode v2 enforcement, Meta CAPI for ROAS, bot/click-fraud filtering before the budget burns, and first-party analytics that survives ad blockers and ITP. sGTM is one of those layers. Hosting a container does not solve the other three.
 
-It does not. It fixes one thing. It moves tag execution off the user's browser, which makes your tracking more resilient to browser restrictions and gives you control over what gets sent. Real benefit. But look at what it leaves untouched.
+So this comparison runs across two tiers. First, like-for-like sGTM hosts where Addingwell competes directly. Second, the bundled trust-infrastructure layer where DataCops sits alongside the dashboard you already use.
 
-Start with [cookieless](/resources/best-cookieless-analytics) analytics, which is the EU-legal framing every server-side host now markets. Cookieless tracking is a European compliance hack, not a global accuracy solution. It keeps you legal. It does not make your numbers right. A server container hosting cookieless tags still ingests whatever shows up.
+---
 
-Next, consent. Marketers hear "Reject All" and assume "no data." Wrong. Anonymous, aggregated session analytics are legal with no consent at all under [GDPR](/resources/best-gdpr-consent-tool-2026). There is a whole legitimate data tier that needs no banner. Most setups throw it away because they treat consent as one binary switch instead of two separate data tiers.
+## sGTM hosts (the lane Addingwell played in)
 
-Then the [consent banner](/resources/best-cmp-2026) itself. The [CMP](/first-party-consent-manager-platform) is a third-party script. uBlock Origin and Brave block third-party CMP scripts something like 30 to 40 percent of the time. On single-page-app route changes, the consent script and your analytics script race each other, and analytics frequently fires first. So a slice of your "consented" traffic was never actually asked, and a slice of your "no data" traffic just had its banner blocked.
+This is the apples-to-apples set. Pure server-side container hosting with Google Tag Manager underneath.
 
-Now the analytics scripts. Browser blocking knocks out 25 to 35 percent of analytics calls before they reach any server. Server-side tagging helps the delivery resilience here, genuinely. But of the data that does land, 24 to 31 percent is bots. Your server container ingests that [bot traffic](/resources/best-invalid-traffic-detection) as cleanly as it ingests humans, because a managed sGTM host does not filter for fraud. That is not its job. It is nobody's job in the standard stack.
+**1. Addingwell (by Didomi)**
 
-Here is the proof moment. A team running an AI product called PillarlabAI set up a honeypot signup flow. They got 3,000 signups. When they actually looked, 77 percent were fraudulent. 650 of those accounts traced back to a single [device fingerprint](/alternative/fingerprintjs-alternative). One machine. If those signups had run through a normal Addingwell-style server container, all 650 would have been forwarded to [Meta](/meta-conversion-api) and Google as conversion events, indistinguishable from real customers.
+The Good: White-glove onboarding, EU-hosted, 99.99% uptime guarantee, clean UI for non-technical operators, native pairing with Didomi CMP since the April 2025 acquisition.
 
-That is layer five, and it is the expensive one. That bot-contaminated, human-incomplete data does not just sit in a dashboard. It gets shipped to Meta and Google through conversion APIs, and it becomes the training signal for their bidding algorithms. You are teaching the ad platforms what a converter looks like using data full of bots and missing a third of your real humans. The platforms optimize toward that. They go find more traffic that looks like your bots. Your [ROAS](/resources/facebook-roas-improvement-guide-from-black-box-to-profit-engine) degrades. Garbage in, garbage optimized, garbage out.
+Frustrations: Pricing reset enterprise after the acquisition (EUR 90/mo entry vs Stape's EUR 50 for similar volume). No SOC 2, ISO 27001, HIPAA or DORA per the Seresa.io agency comparison in 2026. Two-year integration window with Didomi and Sourcepoint means roadmap risk for SMB customers. Independent EU marketers are now publishing "Addingwell alternatives" lists, which is a real demand signal.
 
-A managed server-side tagging host, Addingwell included, does not touch layers one, two, four, or five. It improves delivery on layer three. That is the honest scorecard.
+Wish List: SOC 2 attestation. SMB pricing tier under EUR 50. Multi-tenant agency dashboard.
 
-## DataCops vs Addingwell: the real comparison
+Value for Money: 6.5/10. Premium positioning makes sense if you're already in the Didomi orbit. Loses ground on pure-cost basis to Stape and TAGGRS, and on stack-completeness to DataCops.
 
-### What Addingwell is
+Pricing: Free Sandbox (100k requests), Pay-as-You-Go from EUR 90/mo (2M requests). Higher tiers quoted.
 
-A managed sGTM host with a strong EU data-residency story, now owned by Didomi. Clean product, real engineering, and post-acquisition it integrates with Didomi's consent-management suite. If you are an enterprise that wants server-side tagging and consent orchestration from one vendor, this is a coherent buy.
+---
 
-**Where Addingwell works well.** Reliable container hosting. Good EU data residency. The Didomi relationship means consent and tagging can be procured and supported together, which a large compliance-conscious org genuinely values. Support has historically been responsive. None of that is in dispute.
+**2. Stape**
 
-**Where Addingwell breaks for SMBs and agencies.** Two problems.
+The Good: ISO 27001, SOC 2, HIPAA, DORA and GDPR all attested. 80+ server-side tag templates including Klaviyo, Attentive, Snap and Reddit. Pricing Calculator with three modes since Q3 2025. Strong technical reputation.
 
-First, the buyer it now serves. Post-Didomi, the gravity is enterprise. The bundled Addingwell-plus-Didomi-CMP motion is priced for companies with a compliance budget and a procurement process. An agency running fifteen small client containers, or a DTC brand doing modest volume, is not the customer that pricing was designed around. You can still use it. You will increasingly feel like you are subsidizing a feature set built for someone bigger.
+Frustrations: Counts both incoming and outgoing requests, which inflates real-world bills compared to incoming-only billing. UI leans technical and assumes you're comfortable with sGTM concepts.
 
-Second, the structural one. Addingwell is a tagging host. It does not run a consent layer of its own at the SMB tier without the Didomi bundle, and it does not filter bots at ingestion at all. So a small team buying Addingwell still has to bolt on a separate CMP and still has zero protection against the layer-four bot contamination problem. Three vendors, three bills, and the fraud gap is still wide open.
+Wish List: A non-technical onboarding lane for marketers who don't want to think in containers.
 
-**What DataCops does differently.** DataCops is a first-party tracking architecture. It runs on your own subdomain, so your tracking is part of your site instead of a guest script. That makes it far more resilient than browser-loaded tags.
+Value for Money: 7.5/10. The compliance and tag-coverage leader in the pure sGTM hosting category.
 
-The core difference is the two-tier data model built in at the source. Anonymous, aggregated analytics flow unconditionally, no consent needed, because that tier is legal without it. Identifiable, person-level data is gated on actual consent. The split happens before data leaves your infrastructure, not in a dashboard afterward.
+Pricing: From ~EUR 50/mo at the 2M-request tier. Higher tiers based on incoming + outgoing requests.
 
-Bot filtering runs at ingestion, against an IP intelligence database of 361.8 billion-plus addresses that separates residential from datacenter, VPN, proxy, and Tor. The PillarlabAI scenario, 650 accounts on one fingerprint, gets surfaced before that contamination is forwarded anywhere. DataCops sends conversions to Meta, Google, TikTok, and LinkedIn through conversion APIs. SignUp Cops adds identity intelligence at the signup moment specifically. The free tier covers 2,000 signup verifications a month.
+---
 
-**DataCops limitations, plainly.** SOC 2 Type II is in progress, not finished, so a regulated enterprise with a hard SOC 2 procurement gate may need to wait. DataCops is a newer brand than a Didomi-backed platform. The shared CAPI work is still in verification, so do not buy it expecting that to be fully live today. I would rather you know that now than feel misled later. That honesty is exactly why I am comfortable putting DataCops first in its tier: it is the only option here that closes the consent split and the bot gap in one first-party pipeline at a price an SMB or agency can actually carry.
+**3. TAGGRS**
 
-**Value for money, Addingwell: 7/10.** Solid infrastructure, genuinely good EU posture, but the post-Didomi pricing gravity erodes the value for smaller buyers, and you still pay separately to close the CMP and fraud gaps.
+The Good: EU-only hosting, ~EUR 25/mo entry, positions as "no GTM required". Active publication on Safari 26 tracking changes. Cheap, fast, EU-privacy-first.
 
-**Value for money, DataCops: 8.5/10.** First-party architecture, native two-tier consent, bot filtering, and CAPI in one pipeline at SMB pricing. The SOC 2-in-progress status is the honest deduction.
+Frustrations: Smaller tag library than Stape. Less brand-heavy than Addingwell or Stape. Tighter feature set.
 
-## Decision guide
+Wish List: More native CAPI templates. Bigger third-party integration list.
 
-You are an enterprise that wants tagging and consent from one vendor with a procurement process: Addingwell plus Didomi is a coherent buy.
+Value for Money: 7/10. Best price floor in the category. Validates the EU/privacy-first niche Addingwell vacated upmarket.
 
-You are an agency running many small client containers: Addingwell's enterprise gravity will hurt. Look at DataCops or Tracklution.
+Pricing: From ~EUR 25/mo entry.
 
-You want a bare-metal sGTM host and nothing else: Stape or TAGGRS will do it cheaper than the Addingwell-Didomi bundle.
+---
 
-You want first-party tracking, native consent tiers, and bot filtering in one pipeline at SMB pricing: DataCops.
+**4. Tracklution**
 
-You signed up with Addingwell before the 2024 acquisition and your renewal quote jumped: that is the upmarket drift, not a glitch. Re-evaluate now.
+The Good: Positions as "install like a tracking pixel". ~EUR 31/mo entry. Lowest cognitive overhead in the category for non-technical marketers.
 
-You care most about EU data residency on a budget: Tracklution or DataCops.
+Frustrations: Smaller ecosystem than Stape or Addingwell. Newer brand, fewer agency case studies.
 
-## Server-side tagging was step one, not the finish line
+Wish List: A bigger SaaS integration roster.
 
-Here is the mistake I watch teams make. They move their tags server-side, exhale, and call the data problem solved. It is not solved. It is relocated. A managed container forwards bot signups and consent-raced events to Meta and Google just as faithfully as a browser tag did. Cleaner plumbing carrying the same contaminated water.
+Value for Money: 6.5/10. The simplest path if you're allergic to sGTM mental models.
 
-Addingwell is good plumbing. Post-Didomi it is good plumbing priced for enterprises. Neither fact changes what flows through it.
+Pricing: From ~EUR 31/mo.
 
-So before you sign a renewal, ask yourself one thing. Of every conversion you sent to Meta last month, how many were real humans who actually consented, and how many were bots you paid your tagging host to forward? If you cannot answer that, you do not have a tagging problem. You have an architecture problem.
+---
+
+## Bundled trust infrastructure (the lane that didn't exist when Addingwell launched)
+
+This is the layer that collapses sGTM hosting + consent + CAPI + fraud filtering + first-party analytics into one vendor. Addingwell solves one piece. The bundle solves the whole problem.
+
+**5. DataCops**
+
+The Good: Runs on a CNAME on your subdomain (`datacops.yourdomain.com`), no GTM container required, no Cloud Run. Bundles first-party analytics, server-side CAPI to Meta, Google, TikTok and LinkedIn, signup fraud detection, traffic-fraud validation and a TCF 2.2 certified consent manager into one product. Setup is one script tag plus one DNS record, live in 5 to 30 minutes. Free tier is real (no card, no time limit) at 2,000 sessions/mo with unlimited bot detection. The IP reputation database tracks 361B+ IPs with 146.4B+ datacenter ranges, which is what makes the bot filtering load-bearing rather than cosmetic.
+
+Frustrations: SOC 2 Type II is in progress, not yet attested. ISO 27001 is planned. SSO and SAML are planned, not shipped. The product is younger than Stape and Addingwell, so the agency case-study pile is still growing.
+
+Wish List: Ship SOC 2. Add more ad-platform CAPI destinations beyond the current four.
+
+Value for Money: 8.5/10. Hard to beat on price-per-feature when you actually need the bundle.
+
+Pricing: Free at 2k sessions/mo. Growth $7.99/mo at 5k sessions with unlimited Meta + Google CAPI. Business $49/mo at 50k sessions plus HubSpot integration. Organization $299/mo at 300k sessions. Enterprise on Talk-to-Sales for dedicated environment, dedicated IP reputation database, custom DPA and EU/US residency.
+
+---
+
+## Pricing math people forget
+
+A worked example. Say you're an agency running five client sites at roughly 4M requests per month each.
+
+Addingwell post-acquisition: 5 x ~EUR 180/mo (next tier above 2M) = roughly EUR 900/mo for sGTM hosting alone. Add Didomi CMP licensing for those clients and you're easily another USD 2,000 to 15,000 annually depending on contract. No bot/fraud filter included. No CAPI mediation included beyond the GTM layer.
+
+Stape: 5 x ~EUR 100/mo billed on incoming + outgoing = roughly EUR 500/mo plus your own CMP and your own bot filter and your own analytics dashboard.
+
+DataCops: 5 x Business tier at $49/mo = $245/mo bundled. Free CMP, bot filter, CAPI to Meta + Google + TikTok + LinkedIn included. White-label sits at the Talk-to-Sales tier.
+
+The bundle math is what changed.
+
+---
+
+## What Didomi's roadmap actually means for you
+
+If you read Didomi's Quarterly Product Update for Winter 2025/2026, the priorities are clear. Native Adobe Experience Platform consent integration. Self-service sGTM diagnostics. Enterprise integration tooling. The Adobe + Didomi + Sourcepoint + Addingwell stitch.
+
+None of those line items make life better for a Shopify operator at $40k MRR. They make life better for an Adobe Experience Cloud customer with a procurement department.
+
+That's not a criticism of Didomi's strategy. It's a reasonable PE-backed roll-up motion. It just means SMBs and small agencies on Addingwell should plan for the price-and-feature gravity to keep moving up-market over the next 24 months.
+
+---
+
+## So what should you actually use?
+
+Want pure sGTM hosting with the strongest compliance attestations? Try **Stape**.
+
+Want the cheapest EU-hosted sGTM under EUR 30? Try **TAGGRS** or **Tracklution**.
+
+Want to keep the Didomi CMP and stay enterprise-aligned? Stay on **Addingwell by Didomi**, knowing pricing will trend up.
+
+Want CAPI + consent + bot filtering + first-party analytics in one bill, without an sGTM container? Try **DataCops** Free or Growth.
+
+Want to keep PostHog or Mixpanel for product analytics and just plug in the trust layer? **DataCops** sits underneath both.
+
+Want white-label for an agency stack? **DataCops** Talk-to-Sales tier ships it. Stape and Addingwell agency comparisons in 2026 still admit neither has a true multi-tenant dashboard.
+
+---
+
+## The mistake I see people make
+
+Treating sGTM hosting as the goal instead of the means. Addingwell, Stape, TAGGRS and Tracklution all let you stand up a Server-side GTM container. None of them, by themselves, fix Consent Mode v2 enforcement, stop fraudulent PPC clicks, or recover the 15 to 25% of session data lost to ad blockers and ITP. If you spend 40 hours configuring containers and tags and never address the other three, you've solved a tiny slice of the actual stack problem and paid for a vendor anyway. The whole point of bundling is to stop renting four contracts that almost talk to each other.
+
+---
+
+## Now your turn
+
+What's running in your stack right now? Still on Addingwell? Considering the move? Drop the request volume and the pillar you care about (consent, CAPI, fraud, analytics) and the trade-off becomes obvious fast.
 
 ---
 
